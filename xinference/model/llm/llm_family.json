@@ -1,0 +1,1156 @@
+[
+  {
+    "version": 1,
+    "context_length": 4096,
+    "model_name": "baichuan",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/baichuan-llama-7B-GGML",
+        "model_file_name_template": "baichuan-llama-7b.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "baichuan-inc/Baichuan-7B",
+        "model_revision": "c1a5c7d5b7f50ecc51bb0e08150a9f12e5656756"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "baichuan-inc/Baichuan-13B-Base",
+        "model_revision": "0ef0739c7bdd34df954003ef76d80f3dabca2ff9"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 4096,
+    "model_name": "baichuan-chat",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "baichuan-inc/Baichuan-13B-Chat",
+        "model_revision": "19ef51ba5bad8935b03acd20ff04a269210983bc"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "NO_COLON_TWO",
+      "system_prompt": "",
+      "roles": [
+        " <reserved_102> ",
+        " <reserved_103> "
+      ],
+      "intra_message_sep": "",
+      "inter_message_sep": "</s>",
+      "stop_token_ids": [
+        2,
+        195
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "wizardlm-v1.0",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/WizardLM-7B-V1.0-Uncensored-GGML",
+        "model_file_name_template": "wizardlm-7b-v1.0-uncensored.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/WizardLM-13B-V1.0-Uncensored-GGML",
+        "model_file_name_template": "wizardlm-13b-v1.0-uncensored.ggmlv3.{quantization}.bin"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "ADD_COLON_SINGLE",
+      "system_prompt": "You are a helpful AI assistant.",
+      "roles": [
+        "USER",
+        "ASSISTANT"
+      ],
+      "intra_message_sep": "\n"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "vicuna-v1.3",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/vicuna-7B-v1.3-GGML",
+        "model_file_name_template": "vicuna-7b-v1.3.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/vicuna-13b-v1.3.0-GGML",
+        "model_file_name_template": "vicuna-13b-v1.3.0.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 33,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/vicuna-33B-GGML",
+        "model_file_name_template": "vicuna-33b.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 33,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-33b-v1.3",
+        "model_revision": "ef8d6becf883fb3ce52e3706885f761819477ab4"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-13b-v1.3",
+        "model_revision": "6566e9cb1787585d1147dcf4f9bc48f29e1328d2"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-7b-v1.3",
+        "model_revision": "236eeeab96f0dc2e463f2bebb7bb49809279c6d6"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "ADD_COLON_TWO",
+      "system_prompt": "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.",
+      "roles": [
+        "USER",
+        "ASSISTANT"
+      ],
+      "intra_message_sep": " ",
+      "inter_message_sep": "</s>"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "orca",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 3,
+        "quantizations": [
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/orca_mini_3B-GGML",
+        "model_file_name_template": "orca-mini-3b.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/orca_mini_7B-GGML",
+        "model_file_name_template": "orca-mini-7b.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/orca_mini_13B-GGML",
+        "model_file_name_template": "orca-mini-13b.ggmlv3.{quantization}.bin"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "ADD_COLON_SINGLE",
+      "system_prompt": "You are an AI assistant that follows instruction extremely well. Help as much as you can.",
+      "roles": [
+        "User",
+        "Response"
+      ],
+      "intra_message_sep": "\n\n### "
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "chatglm",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 6,
+        "quantizations": [
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q8_0"
+        ],
+        "model_id": "Xorbits/chatglm-6B-GGML",
+        "model_file_name_template": "chatglm-ggml-{quantization}.bin"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 6,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "THUDM/chatglm-6b",
+        "model_revision": "b1502f4f75c71499a3d566b14463edd62620ce9f"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "CHATGLM",
+      "system_prompt": "",
+      "roles": [
+        "问",
+        "答"
+      ],
+      "intra_message_sep": "\n"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 8192,
+    "model_name": "chatglm2",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 6,
+        "quantizations": [
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q8_0"
+        ],
+        "model_id": "Xorbits/chatglm2-6B-GGML",
+        "model_file_name_template": "chatglm2-ggml-{quantization}.bin"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 6,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "THUDM/chatglm2-6b",
+        "model_revision": "b1502f4f75c71499a3d566b14463edd62620ce9f"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "CHATGLM",
+      "system_prompt": "",
+      "roles": [
+        "问",
+        "答"
+      ],
+      "intra_message_sep": "\n\n"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 32768,
+    "model_name": "chatglm2-32k",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 6,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "THUDM/chatglm2-6b-32k",
+        "model_revision": "455746d4706479a1cbbd07179db39eb2741dc692"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "CHATGLM",
+      "system_prompt": "",
+      "roles": [
+        "问",
+        "答"
+      ],
+      "intra_message_sep": "\n\n"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 4096,
+    "model_name": "llama-2-chat",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/Llama-2-7B-Chat-GGML",
+        "model_file_name_template": "llama-2-7b-chat.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/Llama-2-13B-chat-GGML",
+        "model_file_name_template": "llama-2-13b-chat.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 70,
+        "quantizations": [
+          "q4_0"
+        ],
+        "model_id": "TheBloke/Llama-2-70B-Chat-GGML",
+        "model_file_name_template": "llama-2-70b-chat.ggmlv3.{quantization}.bin"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "LLAMA2",
+      "system_prompt": "<s>[INST] <<SYS>>\nYou are a helpful AI assistant.\n<</SYS>>\n\n",
+      "roles": [
+        "[INST]",
+        "[/INST]"
+      ],
+      "intra_message_sep": " ",
+      "inter_message_sep": " </s><s>",
+      "stop_token_ids": [
+        2
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 4096,
+    "model_name": "llama-2",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/Llama-2-7B-GGML",
+        "model_file_name_template": "llama-2-7b.ggmlv3.{quantization}.bin"
+      },
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "q2_K",
+          "q3_K_L",
+          "q3_K_M",
+          "q3_K_S",
+          "q4_0",
+          "q4_1",
+          "q4_K_M",
+          "q4_K_S",
+          "q5_0",
+          "q5_1",
+          "q5_K_M",
+          "q5_K_S",
+          "q6_K",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/Llama-2-13B-GGML",
+        "model_file_name_template": "llama-2-13b.ggmlv3.{quantization}.bin"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "opt",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 1,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "facebook/opt-125m",
+        "model_revision": "3d2b5f275bdf882b8775f902e1bfdb790e2cfc32"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "falcon",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 40,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "tiiuae/falcon-40b",
+        "model_revision": "561820f7eef0cc56a31ea38af15ca1acb07fab5d"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "tiiuae/falcon-7b",
+        "model_revision": "378337427557d1df3e742264a2901a49f25d4eb1"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "falcon-instruct",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "tiiuae/falcon-7b-instruct",
+        "model_revision": "eb410fb6ffa9028e97adb801f0d6ec46d02f8b07"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 40,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "tiiuae/falcon-40b-instruct",
+        "model_revision": "ca78eac0ed45bf64445ff0687fabba1598daebf3"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "FALCON",
+      "system_prompt": "",
+      "roles": [
+        "User",
+        "Assistant"
+      ],
+      "intra_message_sep": "\n",
+      "inter_message_sep": "<|endoftext|>",
+      "stop": [
+        "\nUser"
+      ],
+      "stop_token_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 8192,
+    "model_name": "starcoderplus",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 16,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "bigcode/starcoderplus",
+        "model_revision": "95be82087c33f14ee9941c812a154a9dd66efe72"
+      }
+    ],
+    "prompt_style": null
+  },
+  {
+    "version": 1,
+    "context_length": 8192,
+    "model_name": "starchat-beta",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 16,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "HuggingFaceH4/starchat-beta",
+        "model_revision": "b1bcda690655777373f57ea6614eb095ec2c886f"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "CHATML",
+      "system_prompt": "<system>{system_message}\n",
+      "roles": [
+        "<|user|>",
+        "<|assistant|>"
+      ],
+      "intra_message_sep": "<|end|>",
+      "stop_token_ids": [
+        0,
+        49155
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "qwen-chat",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "Qwen/Qwen-7B-Chat",
+        "model_revision": "5c611a5cde5769440581f91e8b4bba050f62b1af"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "QWEN",
+      "system_prompt": "You are a helpful assistant.",
+      "roles": [
+        "user",
+        "assistant"
+      ],
+      "intra_message_sep": "\n",
+      "stop_token_ids": [
+        151643
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 8192,
+    "model_name": "starcoder",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 16,
+        "quantizations": [
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q8_0"
+        ],
+        "model_id": "TheBloke/starcoder-GGML",
+        "model_file_name_template": "starcoder.ggmlv3.{quantization}.bin"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 1024,
+    "model_name": "gpt-2",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "ggmlv3",
+        "model_size_in_billions": 1,
+        "quantizations": [
+          "none"
+        ],
+        "model_id": "marella/gpt-2-ggml",
+        "model_file_name_template": "ggml-model.bin"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 8192,
+    "model_name": "internlm",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "generate"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "internlm/internlm-7b",
+        "model_revision": "ab8633378889e2d7b7720703cc72caf52e1c9c44"
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "context_length": 4096,
+    "model_name": "internlm-chat",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "internlm/internlm-chat-7b",
+        "model_revision": "ed5e35564ac836710817c51e8e8d0a5d4ff03102"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "INTERNLM",
+      "system_prompt": "",
+      "roles": [
+        "<|User|>",
+        "<|Bot|>"
+      ],
+      "intra_message_sep": "<eoh>\n",
+      "inter_message_sep": "<eoa>\n",
+      "stop_token_ids": [
+        1,
+        103028
+      ],
+      "stop": [
+        "<eoa>"
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 8192,
+    "model_name": "internlm-chat-8k",
+    "model_lang": [
+      "en",
+      "zh"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "internlm/internlm-chat-7b-8k",
+        "model_revision": "8bd146e7dc41ba5f3eba95679554a03acc9f0043"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "INTERNLM",
+      "system_prompt": "",
+      "roles": [
+        "<|User|>",
+        "<|Bot|>"
+      ],
+      "intra_message_sep": "<eoh>\n",
+      "inter_message_sep": "<eoa>\n",
+      "stop_token_ids": [
+        1,
+        103028
+      ],
+      "stop": [
+        "<eoa>"
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 4096,
+    "model_name": "vicuna-v1.5",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-7b-v1.5",
+        "model_revision": "de56c35b1763eaae20f4d60efd64af0a9091ebe5"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-13b-v1.5",
+        "model_revision": "3deb0106f72a3a433f0c6ea0cb978bdf14bcd3a6"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "ADD_COLON_TWO",
+      "system_prompt": "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.",
+      "roles": [
+        "USER",
+        "ASSISTANT"
+      ],
+      "intra_message_sep": " ",
+      "inter_message_sep": "</s>"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 16384,
+    "model_name": "vicuna-v1.5-16k",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-7b-v1.5-16k",
+        "model_revision": "9a93d7d11fac7f3f9074510b80092b53bc1a5bec"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "lmsys/vicuna-13b-v1.5-16k",
+        "model_revision": "277697af19d4b267626ebc9f4e078d19a9a0fddf"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "ADD_COLON_TWO",
+      "system_prompt": "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.",
+      "roles": [
+        "USER",
+        "ASSISTANT"
+      ],
+      "intra_message_sep": " ",
+      "inter_message_sep": "</s>"
+    }
+  },
+  {
+    "version": 1,
+    "context_length": 2048,
+    "model_name": "wizardmath-v1.0",
+    "model_lang": [
+      "en"
+    ],
+    "model_ability": [
+      "embed",
+      "chat"
+    ],
+    "model_specs": [
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 7,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "WizardLM/WizardMath-7B-V1.0",
+        "model_revision": "3c3a3b33334f4b35344b22c5c7465957ee7b2c75"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 13,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "WizardLM/WizardMath-13B-V1.0",
+        "model_revision": "ef95532e96e634c634992dab891a17032dc71c8d"
+      },
+      {
+        "model_format": "pytorch",
+        "model_size_in_billions": 70,
+        "quantizations": [
+          "4-bit",
+          "8-bit",
+          "none"
+        ],
+        "model_id": "WizardLM/WizardMath-70B-V1.0",
+        "model_revision": " 8823afe1d77b1ebdd6ac0c14e6e8977037d1830e"
+      }
+    ],
+    "prompt_style": {
+      "style_name": "ADD_COLON_SINGLE_COT",
+      "system_prompt": "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
+      "roles": [
+        "Instruction",
+        "Response"
+      ],
+      "intra_message_sep": "\n\n### "
+    }
+  }
+]
