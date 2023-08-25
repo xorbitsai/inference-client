@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import inspect
-from typing import TYPE_CHECKING, Any, Generic, Iterator, List, Optional, TypeVar, Union
-
-import xoscar as xo
+from typing import TYPE_CHECKING, Iterator, List, Optional, Union
 
 if TYPE_CHECKING:
     from ..model.llm.core import LLM
@@ -26,57 +23,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-T = TypeVar("T")
-
-
-class IteratorWrapper(Generic[T]):
-    def __init__(self, model_actor_addr: str, model_actor_uid: str):
-        self._model_actor_addr = model_actor_addr
-        self._model_actor_uid = model_actor_uid
-        self._model_actor_ref: Optional[xo.ActorRefType["ModelActor"]] = None
-
-    def __aiter__(self):
-        return self
-
-    async def __anext__(self) -> T:
-        if self._model_actor_ref is None:
-            self._model_actor_ref = await xo.actor_ref(
-                address=self._model_actor_addr, uid=self._model_actor_uid
-            )
-
-        try:
-            assert self._model_actor_ref is not None
-            return await self._model_actor_ref.next()
-        except Exception as e:
-            if "StopIteration" in str(e):
-                raise StopAsyncIteration
-            else:
-                raise
-
-
-class ModelActor(xo.Actor):
-    @classmethod
-    def gen_uid(cls, model: "LLM"):
-        return f"{model.__class__}-model-actor"
-
-    async def __pre_destroy__(self):
-        if self._model.model_spec.model_format == "pytorch":
-            try:
-                import gc
-
-                import torch
-            except ImportError:
-                error_message = "Failed to import module 'torch'"
-                installation_guide = [
-                    "Please make sure 'torch' is installed.\n",
-                ]
-
-                raise ImportError(f"{error_message}\n\n{''.join(installation_guide)}")
-
-            del self._model
-            gc.collect()
-            torch.cuda.empty_cache()
-
+class Model:
     def __init__(self, model: "LLM"):
         super().__init__()
         self._model = model
@@ -85,30 +32,17 @@ class ModelActor(xo.Actor):
     def load(self):
         self._model.load()
 
-    async def _wrap_generator(self, ret: Any):
-        if inspect.isgenerator(ret):
-            self._generator = ret
-            return IteratorWrapper(
-                model_actor_addr=self.address, model_actor_uid=self.uid
-            )
-        else:
-            return ret
-
     async def generate(self, prompt: str, *args, **kwargs):
         if not hasattr(self._model, "generate"):
             raise AttributeError(f"Model {self._model.model_spec} is not for generate.")
 
-        return self._wrap_generator(
-            getattr(self._model, "generate")(prompt, *args, **kwargs)
-        )
+        return getattr(self._model, "generate")(prompt, *args, **kwargs)
 
     async def chat(self, prompt: str, *args, **kwargs):
         if not hasattr(self._model, "chat"):
             raise AttributeError(f"Model {self._model.model_spec} is not for chat.")
 
-        return self._wrap_generator(
-            getattr(self._model, "chat")(prompt, *args, **kwargs)
-        )
+        return getattr(self._model, "chat")(prompt, *args, **kwargs)
 
     async def create_embedding(self, input: Union[str, List[str]], *args, **kwargs):
         if not hasattr(self._model, "create_embedding"):

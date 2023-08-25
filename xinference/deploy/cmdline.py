@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import configparser
 import logging
 import os
@@ -24,19 +23,16 @@ from xoscar.utils import get_next_port
 
 from .. import __version__
 from ..client import (
-    Client,
     RESTfulChatglmCppChatModelHandle,
     RESTfulChatModelHandle,
     RESTfulClient,
     RESTfulGenerateModelHandle,
 )
 from ..constants import (
-    XINFERENCE_DEFAULT_DISTRIBUTED_HOST,
     XINFERENCE_DEFAULT_ENDPOINT_PORT,
     XINFERENCE_DEFAULT_LOCAL_HOST,
     XINFERENCE_ENV_ENDPOINT,
 )
-from ..isolation import Isolation
 from ..types import ChatCompletionMessage
 
 try:
@@ -84,7 +80,7 @@ def get_endpoint(endpoint: Optional[str]) -> str:
         return endpoint
 
 
-@click.group(invoke_without_command=True, name="xinference")
+@click.group(invoke_without_command=True, name="xinference-client")
 @click.pass_context
 @click.version_option(__version__, "--version", "-v")
 @click.option("--log-level", default="INFO", type=str)
@@ -97,7 +93,7 @@ def cli(
     port: str,
 ):
     if ctx.invoked_subcommand is None:
-        from .local import main
+        from .server import main
 
         logging_conf = configparser.RawConfigParser()
         logger_config_string = get_config_string(log_level)
@@ -106,61 +102,7 @@ def cli(
 
         address = f"{host}:{get_next_port()}"
 
-        main(
-            address=address,
-            host=host,
-            port=port,
-            logging_conf=logging_conf,
-        )
-
-
-@click.command()
-@click.option("--log-level", default="INFO", type=str)
-@click.option("--host", "-H", default=XINFERENCE_DEFAULT_DISTRIBUTED_HOST, type=str)
-@click.option("--port", "-p", default=XINFERENCE_DEFAULT_ENDPOINT_PORT, type=int)
-def supervisor(
-    log_level: str,
-    host: str,
-    port: str,
-):
-    from ..deploy.supervisor import main
-
-    if log_level:
-        logging.basicConfig(level=logging.getLevelName(log_level.upper()))
-    logging_conf = dict(level=log_level.upper())
-
-    address = f"{host}:{get_next_port()}"
-
-    main(address=address, host=host, port=port, logging_conf=logging_conf)
-
-
-@click.command()
-@click.option("--log-level", default="INFO", type=str)
-@click.option(
-    "--endpoint",
-    "-e",
-    type=str,
-)
-@click.option("--host", "-H", default=XINFERENCE_DEFAULT_DISTRIBUTED_HOST, type=str)
-def worker(log_level: str, endpoint: Optional[str], host: str):
-    from ..deploy.worker import main
-
-    logging_conf = configparser.RawConfigParser()
-    logger_config_string = get_config_string(log_level)
-    logging_conf.read_string(logger_config_string)
-    logging.config.fileConfig(logging_conf)  # type: ignore
-
-    endpoint = get_endpoint(endpoint)
-
-    client = RESTfulClient(base_url=endpoint)
-    supervisor_internal_addr = client._get_supervisor_internal_address()
-
-    address = f"{host}:{get_next_port()}"
-    main(
-        address=address,
-        supervisor_address=supervisor_internal_addr,
-        logging_conf=logging_conf,
-    )
+        main(address=address, host=host, port=port, logging_conf=logging_conf)
 
 
 @cli.command("register")
@@ -345,76 +287,32 @@ def model_terminate(
 )
 @click.option("--model-uid", type=str)
 @click.option("--max_tokens", default=256, type=int)
-@click.option("--stream", default=True, type=bool)
 def model_generate(
     endpoint: Optional[str],
     model_uid: str,
     max_tokens: int,
-    stream: bool,
 ):
     endpoint = get_endpoint(endpoint)
-    if stream:
-        # TODO: when stream=True, RestfulClient cannot generate words one by one.
-        # So use Client in temporary. The implementation needs to be changed to
-        # RestfulClient in the future.
-        async def generate_internal():
-            while True:
-                # the prompt will be written to stdout.
-                # https://docs.python.org/3.10/library/functions.html#input
-                prompt = input("Prompt: ")
-                if prompt == "":
-                    break
-                print(f"Completion: {prompt}", end="", file=sys.stdout)
-                async for chunk in model.generate(
-                    prompt=prompt,
-                    generate_config={"stream": stream, "max_tokens": max_tokens},
-                ):
-                    choice = chunk["choices"][0]
-                    if "text" not in choice:
-                        continue
-                    else:
-                        print(choice["text"], end="", flush=True, file=sys.stdout)
-                print("\n", file=sys.stdout)
 
-        client = Client(endpoint=endpoint)
-        model = client.get_model(model_uid=model_uid)
+    restful_client = RESTfulClient(base_url=endpoint)
+    restful_model = restful_client.get_model(model_uid=model_uid)
+    if not isinstance(
+        restful_model, (RESTfulChatModelHandle, RESTfulGenerateModelHandle)
+    ):
+        raise ValueError(f"model {model_uid} has no generate method")
 
-        loop = asyncio.get_event_loop()
-        coro = generate_internal()
-
-        if loop.is_running():
-            isolation = Isolation(asyncio.new_event_loop(), threaded=True)
-            isolation.start()
-            isolation.call(coro)
-        else:
-            task = loop.create_task(coro)
-            try:
-                loop.run_until_complete(task)
-            except KeyboardInterrupt:
-                task.cancel()
-                loop.run_until_complete(task)
-                # avoid displaying exception-unhandled warnings
-                task.exception()
-    else:
-        restful_client = RESTfulClient(base_url=endpoint)
-        restful_model = restful_client.get_model(model_uid=model_uid)
-        if not isinstance(
-            restful_model, (RESTfulChatModelHandle, RESTfulGenerateModelHandle)
-        ):
-            raise ValueError(f"model {model_uid} has no generate method")
-
-        while True:
-            prompt = input("User: ")
-            if prompt == "":
-                break
-            print(f"Assistant: {prompt}", end="", file=sys.stdout)
-            response = restful_model.generate(
-                prompt=prompt,
-                generate_config={"stream": stream, "max_tokens": max_tokens},
-            )
-            if not isinstance(response, dict):
-                raise ValueError("generate result is not valid")
-            print(f"{response['choices'][0]['text']}\n", file=sys.stdout)
+    while True:
+        prompt = input("User: ")
+        if prompt == "":
+            break
+        print(f"Assistant: {prompt}", end="", file=sys.stdout)
+        response = restful_model.generate(
+            prompt=prompt,
+            generate_config={"max_tokens": max_tokens},
+        )
+        if not isinstance(response, dict):
+            raise ValueError("generate result is not valid")
+        print(f"{response['choices'][0]['text']}\n", file=sys.stdout)
 
 
 @cli.command("chat")
@@ -425,91 +323,40 @@ def model_generate(
 )
 @click.option("--model-uid", type=str)
 @click.option("--max_tokens", default=256, type=int)
-@click.option("--stream", default=True, type=bool)
 def model_chat(
     endpoint: Optional[str],
     model_uid: str,
     max_tokens: int,
-    stream: bool,
 ):
     # TODO: chat model roles may not be user and assistant.
     endpoint = get_endpoint(endpoint)
     chat_history: "List[ChatCompletionMessage]" = []
-    if stream:
-        # TODO: when stream=True, RestfulClient cannot generate words one by one.
-        # So use Client in temporary. The implementation needs to be changed to
-        # RestfulClient in the future.
-        async def chat_internal():
-            while True:
-                # the prompt will be written to stdout.
-                # https://docs.python.org/3.10/library/functions.html#input
-                prompt = input("User: ")
-                if prompt == "":
-                    break
-                chat_history.append(ChatCompletionMessage(role="user", content=prompt))
-                print("Assistant: ", end="", file=sys.stdout)
-                response_content = ""
-                async for chunk in model.chat(
-                    prompt=prompt,
-                    chat_history=chat_history,
-                    generate_config={"stream": stream, "max_tokens": max_tokens},
-                ):
-                    delta = chunk["choices"][0]["delta"]
-                    if "content" not in delta:
-                        continue
-                    else:
-                        response_content += delta["content"]
-                        print(delta["content"], end="", flush=True, file=sys.stdout)
-                print("\n", file=sys.stdout)
-                chat_history.append(
-                    ChatCompletionMessage(role="assistant", content=response_content)
-                )
 
-        client = Client(endpoint=endpoint)
-        model = client.get_model(model_uid=model_uid)
+    restful_client = RESTfulClient(base_url=endpoint)
+    restful_model = restful_client.get_model(model_uid=model_uid)
+    if not isinstance(
+        restful_model, (RESTfulChatModelHandle, RESTfulChatglmCppChatModelHandle)
+    ):
+        raise ValueError(f"model {model_uid} has no chat method")
 
-        loop = asyncio.get_event_loop()
-        coro = chat_internal()
-
-        if loop.is_running():
-            isolation = Isolation(asyncio.new_event_loop(), threaded=True)
-            isolation.start()
-            isolation.call(coro)
-        else:
-            task = loop.create_task(coro)
-            try:
-                loop.run_until_complete(task)
-            except KeyboardInterrupt:
-                task.cancel()
-                loop.run_until_complete(task)
-                # avoid displaying exception-unhandled warnings
-                task.exception()
-    else:
-        restful_client = RESTfulClient(base_url=endpoint)
-        restful_model = restful_client.get_model(model_uid=model_uid)
-        if not isinstance(
-            restful_model, (RESTfulChatModelHandle, RESTfulChatglmCppChatModelHandle)
-        ):
-            raise ValueError(f"model {model_uid} has no chat method")
-
-        while True:
-            prompt = input("User: ")
-            if prompt == "":
-                break
-            chat_history.append(ChatCompletionMessage(role="user", content=prompt))
-            print("Assistant: ", end="", file=sys.stdout)
-            response = restful_model.chat(
-                prompt=prompt,
-                chat_history=chat_history,
-                generate_config={"stream": stream, "max_tokens": max_tokens},
-            )
-            if not isinstance(response, dict):
-                raise ValueError("chat result is not valid")
-            response_content = response["choices"][0]["message"]["content"]
-            print(f"{response_content}\n", file=sys.stdout)
-            chat_history.append(
-                ChatCompletionMessage(role="assistant", content=response_content)
-            )
+    while True:
+        prompt = input("User: ")
+        if prompt == "":
+            break
+        chat_history.append(ChatCompletionMessage(role="user", content=prompt))
+        print("Assistant: ", end="", file=sys.stdout)
+        response = restful_model.chat(
+            prompt=prompt,
+            chat_history=chat_history,
+            generate_config={"max_tokens": max_tokens},
+        )
+        if not isinstance(response, dict):
+            raise ValueError("chat result is not valid")
+        response_content = response["choices"][0]["message"]["content"]
+        print(f"{response_content}\n", file=sys.stdout)
+        chat_history.append(
+            ChatCompletionMessage(role="assistant", content=response_content)
+        )
 
 
 if __name__ == "__main__":

@@ -12,27 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import socket
 import threading
-from functools import partial
 from typing import Any, Dict, List, Literal, Optional, Union
 
-import anyio
-import gradio as gr
-import xoscar as xo
-from anyio.streams.memory import MemoryObjectSendStream
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from sse_starlette.sse import EventSourceResponse
 from typing_extensions import NotRequired, TypedDict
 from uvicorn import Config, Server
 
 from ..types import ChatCompletion, Completion, Embedding
-from .supervisor import SupervisorActor
+from .model_processor import ModelProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -217,22 +210,12 @@ class RegisterModelRequest(BaseModel):
     persist: bool
 
 
-class RESTfulAPIActor(xo.Actor):
-    def __init__(self, sockets: List[socket.socket], gradio_block: gr.Blocks):
+class RESTfulAPI:
+    def __init__(self, sockets: List[socket.socket]):
         super().__init__()
-        self._supervisor_ref: xo.ActorRefType["SupervisorActor"]
+        self._model_processor = ModelProcessor()
         self._sockets = sockets
-        self._gradio_block = gradio_block
         self._router = None
-
-    @classmethod
-    def uid(cls) -> str:
-        return "RESTfulAPI"
-
-    async def __post_create__(self):
-        self._supervisor_ref = await xo.actor_ref(
-            address=self.address, uid=SupervisorActor.uid()
-        )
 
     def serve(self):
         app = FastAPI()
@@ -252,7 +235,6 @@ class RESTfulAPIActor(xo.Actor):
         self._router.add_api_route(
             "/v1/models/{model_uid}", self.terminate_model, methods=["DELETE"]
         )
-        self._router.add_api_route("/v1/address", self.get_address, methods=["GET"])
         self._router.add_api_route(
             "/v1/completions",
             self.create_completion,
@@ -295,7 +277,6 @@ class RESTfulAPIActor(xo.Actor):
         )
 
         app.include_router(self._router)
-        app = gr.mount_gradio_app(app, self._gradio_block, path="/")
 
         # run uvicorn in another daemon thread.
         config = Config(app=app, log_level="critical")
@@ -311,14 +292,14 @@ class RESTfulAPIActor(xo.Actor):
 
     async def list_models(self) -> Dict[str, Dict[str, Any]]:
         try:
-            return await self._supervisor_ref.list_models()
+            return await self._model_processor.list_models()
         except Exception as e:
             logger.error(e, exc_info=True)
             raise HTTPException(status_code=500, detail=str(e))
 
     async def describe_model(self, model_uid: str) -> Dict[str, Any]:
         try:
-            return await self._supervisor_ref.describe_model(model_uid)
+            return await self._model_processor.describe_model(model_uid)
 
         except ValueError as ve:
             logger.error(str(ve), exc_info=True)
@@ -355,7 +336,7 @@ class RESTfulAPIActor(xo.Actor):
             )
 
         try:
-            await self._supervisor_ref.launch_builtin_model(
+            await self._model_processor.launch_builtin_model(
                 model_uid=model_uid,
                 model_name=model_name,
                 model_size_in_billions=model_size_in_billions,
@@ -378,7 +359,7 @@ class RESTfulAPIActor(xo.Actor):
 
     async def terminate_model(self, model_uid: str):
         try:
-            await self._supervisor_ref.terminate_model(model_uid)
+            await self._model_processor.terminate_model(model_uid)
         except ValueError as ve:
             logger.error(str(ve), exc_info=True)
             raise HTTPException(status_code=400, detail=str(ve))
@@ -386,9 +367,6 @@ class RESTfulAPIActor(xo.Actor):
         except Exception as e:
             logger.error(e, exc_info=True)
             raise HTTPException(status_code=500, detail=str(e))
-
-    async def get_address(self):
-        return self.address
 
     async def create_completion(self, request: Request, body: CreateCompletionRequest):
         exclude = {
@@ -408,7 +386,7 @@ class RESTfulAPIActor(xo.Actor):
         model_uid = body.model
 
         try:
-            model = await self._supervisor_ref.get_model(model_uid)
+            model = await self._model_processor.get_model(model_uid)
         except ValueError as ve:
             logger.error(str(ve), exc_info=True)
             raise HTTPException(status_code=400, detail=str(ve))
@@ -418,32 +396,7 @@ class RESTfulAPIActor(xo.Actor):
             raise HTTPException(status_code=500, detail=str(e))
 
         if body.stream:
-            # create a pair of memory object streams
-            send_chan, recv_chan = anyio.create_memory_object_stream(10)
-
-            async def event_publisher(inner_send_chan: MemoryObjectSendStream):
-                async with inner_send_chan:
-                    try:
-                        iterator = await model.generate(body.prompt, kwargs)
-                        async for chunk in iterator:
-                            await inner_send_chan.send(dict(data=json.dumps(chunk)))
-                            if await request.is_disconnected():
-                                raise anyio.get_cancelled_exc_class()()
-                    except anyio.get_cancelled_exc_class() as e:
-                        logger.warning("disconnected")
-                        with anyio.move_on_after(1, shield=True):
-                            logger.warning(
-                                f"Disconnected from client (via refresh/close) {request.client}"
-                            )
-                            await inner_send_chan.send(dict(closing=True))
-                            raise e
-                    except Exception as e:
-                        raise HTTPException(status_code=500, detail=str(e))
-
-            return EventSourceResponse(
-                recv_chan, data_sender_callable=partial(event_publisher, send_chan)
-            )
-
+            raise ValueError("stream=True is not supported in temporary")
         else:
             try:
                 return await model.generate(body.prompt, kwargs)
@@ -455,7 +408,7 @@ class RESTfulAPIActor(xo.Actor):
         model_uid = request.model
 
         try:
-            model = await self._supervisor_ref.get_model(model_uid)
+            model = await self._model_processor.get_model(model_uid)
         except ValueError as ve:
             logger.error(str(ve), exc_info=True)
             raise HTTPException(status_code=400, detail=str(ve))
@@ -513,7 +466,7 @@ class RESTfulAPIActor(xo.Actor):
         model_uid = body.model
 
         try:
-            model = await self._supervisor_ref.get_model(model_uid)
+            model = await self._model_processor.get_model(model_uid)
 
         except ValueError as ve:
             logger.error(str(ve), exc_info=True)
@@ -523,7 +476,7 @@ class RESTfulAPIActor(xo.Actor):
             raise HTTPException(status_code=500, detail=str(e))
 
         try:
-            desc = await self._supervisor_ref.describe_model(model_uid)
+            desc = await self._model_processor.describe_model(model_uid)
 
         except ValueError as ve:
             logger.error(str(ve), exc_info=True)
@@ -543,37 +496,7 @@ class RESTfulAPIActor(xo.Actor):
             )
 
         if body.stream:
-            # create a pair of memory object streams
-            send_chan, recv_chan = anyio.create_memory_object_stream(10)
-
-            async def event_publisher(inner_send_chan: MemoryObjectSendStream):
-                async with inner_send_chan:
-                    try:
-                        if is_chatglm_ggml:
-                            iterator = await model.chat(prompt, chat_history, kwargs)
-                        else:
-                            iterator = await model.chat(
-                                prompt, system_prompt, chat_history, kwargs
-                            )
-                        async for chunk in iterator:
-                            await inner_send_chan.send(dict(data=json.dumps(chunk)))
-                            if await request.is_disconnected():
-                                raise anyio.get_cancelled_exc_class()()
-                    except anyio.get_cancelled_exc_class() as e:
-                        logger.warning("disconnected")
-                        with anyio.move_on_after(1, shield=True):
-                            logger.warning(
-                                f"Disconnected from client (via refresh/close) {request.client}"
-                            )
-                            await inner_send_chan.send(dict(closing=True))
-                            raise e
-                    except Exception as e:
-                        raise HTTPException(status_code=500, detail=str(e))
-
-            return EventSourceResponse(
-                recv_chan, data_sender_callable=partial(event_publisher, send_chan)
-            )
-
+            raise ValueError("stream=True is not supported in temporary")
         else:
             try:
                 if is_chatglm_ggml:
@@ -589,7 +512,7 @@ class RESTfulAPIActor(xo.Actor):
         persist = request.persist
 
         try:
-            await self._supervisor_ref.register_model(model_type, model, persist)
+            await self._model_processor.register_model(model_type, model, persist)
         except ValueError as re:
             logger.error(re, exc_info=True)
             raise HTTPException(status_code=400, detail=str(re))
@@ -599,7 +522,7 @@ class RESTfulAPIActor(xo.Actor):
 
     async def unregister_model(self, model_type: str, model_name: str):
         try:
-            await self._supervisor_ref.unregister_model(model_type, model_name)
+            await self._model_processor.unregister_model(model_type, model_name)
         except ValueError as re:
             logger.error(re, exc_info=True)
             raise HTTPException(status_code=400, detail=str(re))
@@ -609,7 +532,7 @@ class RESTfulAPIActor(xo.Actor):
 
     async def list_model_registrations(self, model_type: str) -> List[Dict[str, Any]]:
         try:
-            return await self._supervisor_ref.list_model_registrations(model_type)
+            return await self._model_processor.list_model_registrations(model_type)
         except ValueError as re:
             logger.error(re, exc_info=True)
             raise HTTPException(status_code=400, detail=str(re))
@@ -621,7 +544,7 @@ class RESTfulAPIActor(xo.Actor):
         self, model_type: str, model_name: str
     ) -> Dict[str, Any]:
         try:
-            return await self._supervisor_ref.get_model_registration(
+            return await self._model_processor.get_model_registration(
                 model_type, model_name
             )
         except ValueError as re:

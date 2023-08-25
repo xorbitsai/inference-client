@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 async def create_worker_actor_pool(
     address: str, logging_conf: Any = None
 ) -> "MainActorPoolType":
-    from xorbits._mars.resource import cuda_count
+    from ..core.resource import cuda_count
 
     cuda_device_indices = []
     cuda_visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES")
@@ -50,7 +50,7 @@ async def create_worker_actor_pool(
         )
         return pool
     else:
-        from xorbits._mars.resource import cpu_count
+        from ..core.resource import cpu_count
 
         # create a process for every 4 CPUs.
         cpu_indices = [i for i in range(cpu_count()) if i % 4 == 0]

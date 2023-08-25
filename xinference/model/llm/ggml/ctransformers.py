@@ -79,7 +79,7 @@ class CtransformersGenerateConfig(TypedDict, total=False):
 
 
 def _has_cuda_device():
-    from xorbits._mars.resource import cuda_count
+    from ....core.resource import cuda_count
 
     return cuda_count() > 0
 

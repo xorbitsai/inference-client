@@ -20,20 +20,16 @@ import xoscar as xo
 
 @pytest_asyncio.fixture
 async def setup():
-    from .deploy.supervisor import start_supervisor_components
+    from .deploy.server import start_server_components
     from .deploy.utils import create_worker_actor_pool
-    from .deploy.worker import start_worker_components
 
     pool = await create_worker_actor_pool(
         f"test://127.0.0.1:{xo.utils.get_next_port()}"
     )
     print(f"Pool running on localhost:{pool.external_address}")
 
-    endpoint = await start_supervisor_components(
+    endpoint = await start_server_components(
         pool.external_address, "127.0.0.1", xo.utils.get_next_port()
-    )
-    await start_worker_components(
-        address=pool.external_address, supervisor_address=pool.external_address
     )
 
     # wait for the api.

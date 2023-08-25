@@ -21,16 +21,12 @@ import xoscar as xo
 from xoscar.utils import get_next_port
 
 from ..constants import XINFERENCE_DEFAULT_ENDPOINT_PORT
-from ..core.gradio import GradioApp
-from ..core.restful_api import RESTfulAPIActor
-from ..core.supervisor import SupervisorActor
+from ..core.restful_api import RESTfulAPI
 
 logger = logging.getLogger("xinference")
 
 
-async def start_supervisor_components(address: str, host: str, port: int):
-    await xo.create_actor(SupervisorActor, address=address, uid=SupervisorActor.uid())
-    gradio_block = GradioApp(address).build()
+async def start_server_components(address: str, host: str, port: int):
     # create a socket for RESTful API
     try:
         sockets = []
@@ -54,20 +50,14 @@ async def start_supervisor_components(address: str, host: str, port: int):
         else:
             raise
 
-    restful_actor = await xo.create_actor(
-        RESTfulAPIActor,
-        address=address,
-        uid=RESTfulAPIActor.uid(),
-        sockets=sockets,
-        gradio_block=gradio_block,
-    )
-    await restful_actor.serve()
+    restful_actor = RESTfulAPI(sockets=sockets)
+    restful_actor.serve()
     url = f"http://{host}:{port}"
     logger.info(f"Xinference successfully started. Endpoint: {url}")
     return url
 
 
-async def _start_supervisor(
+async def _start_server(
     address: str, host: str, port: int, logging_conf: Optional[Dict] = None
 ):
     pool = None
@@ -75,7 +65,7 @@ async def _start_supervisor(
         pool = await xo.create_actor_pool(
             address=address, n_process=0, logging_conf=logging_conf
         )
-        await start_supervisor_components(address=address, host=host, port=port)
+        await start_server_components(address=address, host=host, port=port)
         await pool.join()
     except asyncio.exceptions.CancelledError:
         if pool is not None:
@@ -84,7 +74,7 @@ async def _start_supervisor(
 
 def main(*args, **kwargs):
     loop = asyncio.get_event_loop()
-    task = loop.create_task(_start_supervisor(*args, **kwargs))
+    task = loop.create_task(_start_server(*args, **kwargs))
 
     try:
         loop.run_until_complete(task)
