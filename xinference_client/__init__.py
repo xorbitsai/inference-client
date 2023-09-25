@@ -12,4 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from . import _version
 from .client.restful_client import RESTfulClient
+
+__version__ = _version.get_versions()["version"]
