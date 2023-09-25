@@ -86,15 +86,8 @@ jobs:
           MODULE: ${{ matrix.module }}
         run: |
           pip install llama-cpp-python>=0.2.0
-          pip install transformers
           pip install torch
-          pip install accelerate
-          pip install sentencepiece
-          pip install transformers_stream_generator
-          pip install bitsandbytes
-          pip install ctransformers
           pip install sentence-transformers
-          pip install s3fs
           pip install requests
           pip install xinference
           pip install -e ".[dev]"
