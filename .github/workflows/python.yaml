@@ -1,0 +1,103 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    types: ['opened', 'reopened', 'synchronize']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ "ubuntu-latest" ]
+        python-version: [ "3.10" ]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: flake8 Lint
+        uses: py-actions/flake8@v2
+        with:
+          path: "xinference_client"
+          args: "--config setup.cfg"
+      - name: black
+        uses: psf/black@stable
+        with:
+          src: "xinference_client"
+          options: "--check"
+      - uses: isort/isort-action@master
+        with:
+          sortPaths: "xinference_client"
+          configuration: "--check-only --diff --sp setup.cfg"
+      - name: mypy
+        run: pip install mypy && mypy --install-types --non-interactive xinference_client
+      - name: codespell
+        run: pip install codespell && codespell xinference_client
+
+  build_test_job:
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    env:
+      CONDA_ENV: test
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        module: [ "xinference_client" ]
+        exclude:
+          - { os: macos-latest, python-version: 3.9 }
+          - { os: macos-latest, python-version: 3.10 }
+          - { os: windows-latest, python-version: 3.9 }
+          - { os: windows-latest, python-version: 3.10 }
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up conda ${{ matrix.python-version }}
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          activate-environment: ${{ env.CONDA_ENV }}
+
+      - name: Install dependencies
+        env:
+          MODULE: ${{ matrix.module }}
+        run: |
+          pip install llama-cpp-python>=0.2.0
+          pip install torch
+          pip install sentence-transformers
+          pip install requests
+          pip install xinference
+          pip install -e ".[dev]"
+        working-directory: .
+
+      - name: Test with pytest
+        env:
+          MODULE: ${{ matrix.module }}
+        run: |
+          pytest --timeout=1500 \
+            -W ignore::PendingDeprecationWarning \
+            --cov-config=setup.cfg --cov-report=xml --cov=xinference_client xinference_client
+        working-directory: .
