@@ -132,7 +132,9 @@ class RESTfulChatglmCppChatModelHandle(RESTfulEmbeddingModelHandle):
             )
 
         if stream:
-            return chat_streaming_response_iterator(response.iter_lines())
+            return chat_streaming_response_iterator(
+                response.iter_content(chunk_size=None)
+            )
 
         response_data = response.json()
         return response_data
@@ -188,7 +190,7 @@ class RESTfulGenerateModelHandle(RESTfulEmbeddingModelHandle):
             )
 
         if stream:
-            return streaming_response_iterator(response.iter_lines())
+            return streaming_response_iterator(response.iter_content(chunk_size=None))
 
         response_data = response.json()
         return response_data
@@ -266,7 +268,9 @@ class RESTfulChatModelHandle(RESTfulGenerateModelHandle):
             )
 
         if stream:
-            return chat_streaming_response_iterator(response.iter_lines())
+            return chat_streaming_response_iterator(
+                response.iter_content(chunk_size=None)
+            )
 
         response_data = response.json()
         return response_data

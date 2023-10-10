@@ -18,14 +18,14 @@ from .types import ChatCompletionChunk, CompletionChunk
 
 
 def streaming_response_iterator(
-    response_lines: Iterator[bytes],
+    response_chunk: Iterator[bytes],
 ) -> Iterator["CompletionChunk"]:
     """
     Create an Iterator to handle the streaming type of generation.
 
     Parameters
     ----------
-    response_lines: Iterator[bytes]
+    response_chunk: Iterator[bytes]
         Generated lines by the Model Generator.
 
     Returns
@@ -35,23 +35,24 @@ def streaming_response_iterator(
 
     """
 
-    for line in response_lines:
-        line = line.strip()
-        if line.startswith(b"data:"):
-            data = json.loads(line.decode("utf-8").replace("data: ", "", 1))
-            yield data
+    for chunk in response_chunk:
+        content = json.loads(chunk.decode("utf-8"))
+        error = content.get("error", None)
+        if error is not None:
+            raise Exception(str(error))
+        yield content
 
 
 def chat_streaming_response_iterator(
-    response_lines: Iterator[bytes],
+    response_chunk: Iterator[bytes],
 ) -> Iterator["ChatCompletionChunk"]:
     """
     Create an Iterator to handle the streaming type of generation.
 
     Parameters
     ----------
-    response_lines: Iterator[bytes]
-        Generated lines by the Model Generator.
+    response_chunk: Iterator[bytes]
+        Generated chunk by the Model Generator.
 
     Returns
     -------
@@ -60,8 +61,9 @@ def chat_streaming_response_iterator(
 
     """
 
-    for line in response_lines:
-        line = line.strip()
-        if line.startswith(b"data:"):
-            data = json.loads(line.decode("utf-8").replace("data: ", "", 1))
-            yield data
+    for chunk in response_chunk:
+        content = json.loads(chunk.decode("utf-8"))
+        error = content.get("error", None)
+        if error is not None:
+            raise Exception(str(error))
+        yield content
