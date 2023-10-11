@@ -1,0 +1,3 @@
+[submodule "third_party/inference"]
+	path = third_party/inference
+	url = https://github.com/xorbitsai/inference.git
