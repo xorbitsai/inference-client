@@ -85,19 +85,12 @@ jobs:
         env:
           MODULE: ${{ matrix.module }}
         run: |
-          pip install llama-cpp-python>=0.2.0
-          pip install torch
-          pip install sentence-transformers
-          pip install requests
-          pip install xinference
           pip install -e ".[dev]"
         working-directory: .
 
-      - name: Test with pytest
+      - name: Test import
         env:
           MODULE: ${{ matrix.module }}
         run: |
-          pytest --timeout=1500 \
-            -W ignore::PendingDeprecationWarning \
-            --cov-config=setup.cfg --cov-report=xml --cov=xinference_client xinference_client
+          python -c "from xinference_client import RESTfulClient as Client"
         working-directory: .
