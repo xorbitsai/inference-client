@@ -13,6 +13,6 @@
 # limitations under the License.
 
 from . import _version
-from .client.restful_client import RESTfulClient
+from .client.restful.restful_client import Client as RESTfulClient
 
 __version__ = _version.get_versions()["version"]

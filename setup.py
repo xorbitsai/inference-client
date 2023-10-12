@@ -83,6 +83,41 @@ def build_long_description():
         return f.read()
 
 
+def symlink_client():
+    xinference_root = os.path.join(repo_root, "third_party", "inference", "xinference")
+    dst_root = os.path.join(repo_root, "xinference_client")
+
+    os.makedirs(os.path.join(dst_root, "client"), exist_ok=True)
+
+    client_dir = os.path.join(xinference_root, "client", "restful")
+    dst_client_dir = os.path.join(dst_root, "client", "restful")
+    if os.path.exists(dst_client_dir):
+        os.unlink(dst_client_dir)
+    assert os.path.exists(client_dir)
+    os.symlink(client_dir, dst_client_dir, target_is_directory=True)
+
+    dst_init_file = os.path.join(dst_root, "client", "__init__.py")
+    if os.path.exists(dst_init_file):
+        os.remove(dst_init_file)
+    # just create a new empty __init__.py
+    f = open(dst_init_file, mode="w", encoding="utf-8")
+    f.close()
+
+    common_file = os.path.join(xinference_root, "client", "common.py")
+    dst_common_file = os.path.join(dst_root, "client", "common.py")
+    if os.path.exists(dst_common_file):
+        os.unlink(dst_common_file)
+    assert os.path.exists(common_file)
+    os.symlink(common_file, dst_common_file, target_is_directory=False)
+
+    types_file = os.path.join(xinference_root, "types.py")
+    dst_types_file = os.path.join(dst_root, "types.py")
+    if os.path.exists(dst_types_file):
+        os.unlink(dst_types_file)
+    assert os.path.exists(types_file)
+    os.symlink(types_file, dst_types_file, target_is_directory=False)
+
+
 setup_options = dict(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(
@@ -95,4 +130,5 @@ setup_options = dict(
     long_description=build_long_description(),
     long_description_content_type="text/markdown",
 )
+symlink_client()
 setup(**setup_options)
