@@ -55,6 +55,10 @@ jobs:
           verbose: true
           repository_url: https://test.pypi.org/legacy/
 
+      - name: Wait for PyPI
+        run: |
+          sleep 60s
+
   test_import:
     needs: [ build-publish ]
     strategy:
