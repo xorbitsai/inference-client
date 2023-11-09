@@ -1,1 +1,0 @@
-/Users/lichengjie/Projects/workspace/inference-client/third_party/inference/xinference/fields.py

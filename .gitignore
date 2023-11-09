@@ -146,3 +146,4 @@ asv/results
 # these files are from third_party/inference, so git does not need to record them
 xinference_client/client
 xinference_client/types.py
+xinference_client/fields.py
