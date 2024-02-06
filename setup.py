@@ -124,6 +124,13 @@ def symlink_client():
     assert os.path.exists(fields_file)
     os.symlink(fields_file, dst_fields_file, target_is_directory=False)
 
+    fields_file = os.path.join(xinference_root, "_compat.py")
+    dst_fields_file = os.path.join(dst_root, "_compat.py")
+    if os.path.exists(dst_fields_file):
+        os.unlink(dst_fields_file)
+    assert os.path.exists(fields_file)
+    os.symlink(fields_file, dst_fields_file, target_is_directory=False)
+
 
 setup_options = dict(
     version=versioneer.get_version(),
