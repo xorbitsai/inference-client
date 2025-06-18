@@ -1,0 +1,1 @@
+/home/bash/Documents/inference-client/third_party/inference/xinference/_compat.py
