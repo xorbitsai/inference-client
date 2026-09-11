@@ -147,3 +147,4 @@ asv/results
 xinference_client/client
 xinference_client/types.py
 xinference_client/fields.py
+xinference_client/_compat.py
