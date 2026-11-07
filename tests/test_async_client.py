@@ -5,17 +5,17 @@ from xinference_client import AsyncRESTfulClient
 
 
 @pytest.mark.asyncio
-async def test_list_models_and_explicit_close(monkeypatch):
-    # Authentication discovery is synchronous; isolate it from the async server.
-    monkeypatch.setattr(
-        AsyncRESTfulClient, "_check_cluster_authenticated", lambda self: None
-    )
+async def test_list_models_and_explicit_close():
     model = {"id": "test-model", "model_type": "LLM"}
 
     async def list_models(request):
         return web.json_response({"data": [model]})
 
+    async def cluster_auth(request):
+        return web.json_response({"auth": False})
+
     app = web.Application()
+    app.router.add_get("/v1/cluster/auth", cluster_auth)
     app.router.add_get("/v1/models", list_models)
     runner = web.AppRunner(app)
     await runner.setup()
